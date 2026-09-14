@@ -87,13 +87,10 @@ function drawWheel() {
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // 畫文字（由上往下直立排列）
+        // 畫文字（由內向外放射排版，轉到頂部時為由上往下的直書）
         ctx.save();
         ctx.translate(center, center);
-        
-        // 計算該扇形中心線的角度
-        const midAngle = angle + arcSize / 2;
-        ctx.rotate(midAngle);
+        ctx.rotate(angle + arcSize / 2);
         
         // 白色文字與陰影
         ctx.fillStyle = '#ffffff';
@@ -113,18 +110,20 @@ function drawWheel() {
         ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
 
         const charCount = rawText.length;
-        const charSpacing = fontSize * 1.25; // 字距
-        const startX = outsideRadius - 25 - ((charCount - 1) * charSpacing); // 從外圈向內排列
+        const charSpacing = fontSize * 1.2; // 字距
+
+        // 從圓心附近開始（內側 45px 處），由第一個字一路向外繪製到最後一個字
+        const startRadius = 45;
 
         for (let j = 0; j < charCount; j++) {
             const char = rawText[j];
-            const x = startX + j * charSpacing;
+            const radiusOffset = startRadius + j * charSpacing;
             
             ctx.save();
-            ctx.translate(x, 0);
+            ctx.translate(radiusOffset, 0);
             
-            // 將每個單字反向旋轉回到水平正立角度（旋轉 -90 度）
-            ctx.rotate(-Math.PI / 2);
+            // 旋轉 90 度，使每個字的頭朝向外圈、腳朝向圓心
+            ctx.rotate(Math.PI / 2);
             
             ctx.fillText(char, 0, 0);
             ctx.restore();
