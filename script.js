@@ -12,7 +12,7 @@ const resultModal = document.getElementById('resultModal');
 const resultText = document.getElementById('resultText');
 const closeModal = document.getElementById('closeModal');
 
-// 已移除：水餃、速食
+// 快捷選項清單（已移除水餃、速食）
 let presetOptions = [
     "飯", "麵", "便當", "火鍋", "滷味", 
     "素食", "日式", "韓式", "義式", 
@@ -25,10 +25,10 @@ let selectedNames = ["飯", "麵", "火鍋", "日式", "韓式", "飲料"];
 
 // 顏色庫
 const colorPalette = [
-    '#f1c40f', '#e67e22', '#e74c3c', '#9b59b6', 
-    '#3498db', '#1abc9c', '#2ecc71', '#e84393',
+    '#e74c3c', '#e67e22', '#f39c12', '#2ecc71', 
+    '#1abc9c', '#3498db', '#9b59b6', '#e84393',
     '#fd79a8', '#00b894', '#00cec9', '#6c5ce7',
-    '#ff7675', '#74b9ff', '#a29bfe', '#ffeaa7'
+    '#ff7675', '#74b9ff', '#a29bfe', '#d63031'
 ];
 
 let prizes = [];
@@ -73,8 +73,6 @@ function drawWheel() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.scale(dpr, dpr);
 
-    const maxTextWidth = 100;
-
     for (let i = 0; i < numSegments; i++) {
         const angle = startAngle + i * arcSize;
 
@@ -85,32 +83,48 @@ function drawWheel() {
         ctx.arc(center, center, outsideRadius, angle, angle + arcSize, false);
         ctx.lineTo(center, center);
         ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // 畫文字
+        // 畫文字（直書、白色）
         ctx.save();
         ctx.translate(center, center);
         ctx.rotate(angle + arcSize / 2);
-        ctx.fillStyle = '#2c3e50';
-        ctx.textAlign = 'right';
+        
+        // 設定白色文字與陰影增加辨識度
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+        ctx.shadowBlur = 3;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 1;
+        
+        ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
         let rawText = prizes[i].text;
-        let fontSize = 13;
-        if (rawText.length > 8) fontSize = 10;
-        else if (rawText.length > 6) fontSize = 11;
+        let fontSize = 14;
+        if (rawText.length > 5) fontSize = 11;
+        else if (rawText.length > 3) fontSize = 12;
         
         ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
 
-        let displayText = rawText;
-        if (ctx.measureText(displayText).width > maxTextWidth) {
-            while (displayText.length > 0 && ctx.measureText(displayText + '...').width > maxTextWidth) {
-                displayText = displayText.slice(0, -1);
-            }
-            displayText += '...';
+        // 逐字繪製成直書
+        const charCount = rawText.length;
+        const charSpacing = fontSize * 1.1; // 字距
+        const startX = outsideRadius - 25 - ((charCount - 1) * charSpacing) / 2; // 從外圈向內排版
+
+        for (let j = 0; j < charCount; j++) {
+            const char = rawText[j];
+            const x = startX + j * charSpacing;
+            
+            ctx.save();
+            ctx.translate(x, 0);
+            ctx.rotate(Math.PI / 2); // 旋轉 90 度使單字保持正向直立
+            ctx.fillText(char, 0, 0);
+            ctx.restore();
         }
 
-        ctx.fillText(displayText, outsideRadius - 12, 0);
         ctx.restore();
     }
 
@@ -119,6 +133,7 @@ function drawWheel() {
     ctx.arc(center, center, outsideRadius, 0, 2 * Math.PI, false);
     ctx.lineWidth = 4;
     ctx.strokeStyle = '#34495e';
+    ctx.shadowColor = 'transparent';
     ctx.stroke();
 
     // 中心蓋點
