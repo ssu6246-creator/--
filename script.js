@@ -5,41 +5,35 @@ const menuToggle = document.getElementById('menuToggle');
 const closeSidebar = document.getElementById('closeSidebar');
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
-const prizeListContainer = document.getElementById('prizeList');
 const presetTagsContainer = document.getElementById('presetTags');
-const addPrizeBtn = document.getElementById('addPrizeBtn');
 const saveBtn = document.getElementById('saveBtn');
 
 const resultModal = document.getElementById('resultModal');
 const resultText = document.getElementById('resultText');
 const closeModal = document.getElementById('closeModal');
 
-// 快捷選項清單
-const presetOptions = [
+// 已移除：水餃、速食
+let presetOptions = [
     "飯", "麵", "便當", "火鍋", "滷味", 
-    "速食", "素食", "日式", "韓式", "義式", 
-    "早餐", "炸物", "燒烤", "水餃", "甜點", 
+    "素食", "日式", "韓式", "義式", 
+    "早餐", "炸物", "燒烤", "甜點", 
     "健康餐", "飲料"
 ];
 
-// 色彩庫
+// 預設已選取的選項名稱
+let selectedNames = ["飯", "麵", "火鍋", "日式", "韓式", "飲料"];
+
+// 顏色庫
 const colorPalette = [
     '#f1c40f', '#e67e22', '#e74c3c', '#9b59b6', 
     '#3498db', '#1abc9c', '#2ecc71', '#e84393',
-    '#fd79a8', '#00b894', '#00cec9', '#6c5ce7'
+    '#fd79a8', '#00b894', '#00cec9', '#6c5ce7',
+    '#ff7675', '#74b9ff', '#a29bfe', '#ffeaa7'
 ];
 
-let prizes = [
-    { text: '飯', color: '#f1c40f' },
-    { text: '麵', color: '#e67e22' },
-    { text: '火鍋', color: '#e74c3c' },
-    { text: '日式', color: '#3498db' },
-    { text: '韓式', color: '#9b59b6' },
-    { text: '飲料', color: '#1abc9c' }
-];
-
-let numSegments = prizes.length;
-let arcSize = (2 * Math.PI) / numSegments;
+let prizes = [];
+let numSegments = 0;
+let arcSize = 0;
 let startAngle = 0;
 let isSpinning = false;
 const cssSize = 300;
@@ -52,8 +46,14 @@ function setupCanvasHighDPI() {
     canvas.style.height = `${cssSize}px`;
 }
 
-function getRandomColor() {
-    return colorPalette[Math.floor(Math.random() * colorPalette.length)];
+// 根據名稱列表生成帶有顏色的獎項資料
+function updatePrizesFromSelected() {
+    prizes = selectedNames.map((name, index) => {
+        return {
+            text: name,
+            color: colorPalette[index % colorPalette.length]
+        };
+    });
 }
 
 function drawWheel() {
@@ -133,89 +133,68 @@ function drawWheel() {
     ctx.restore();
 }
 
-// 渲染快捷選項按鈕
+// 渲染快捷選項按鈕（含 + 號新增按鈕）
 function renderPresetTags() {
     presetTagsContainer.innerHTML = '';
-    const currentPrizeNames = prizes.map(p => p.text);
 
+    // 渲染一般選項按鈕
     presetOptions.forEach(option => {
         const btn = document.createElement('button');
         btn.className = 'tag-btn';
         btn.textContent = option;
         
-        // 若該選項已在目前的轉盤清單中，呈現選取 (綠色) 狀態
-        if (currentPrizeNames.includes(option)) {
+        // 若該選項已選取，顯示綠色 (.selected)
+        if (selectedNames.includes(option)) {
             btn.classList.add('selected');
         }
 
         btn.addEventListener('click', () => {
-            btn.classList.toggle('selected');
-            if (btn.classList.contains('selected')) {
-                // 新增至列表
-                prizes.push({ text: option, color: getRandomColor() });
+            if (selectedNames.includes(option)) {
+                selectedNames = selectedNames.filter(name => name !== option);
+                btn.classList.remove('selected');
             } else {
-                // 從列表中移除
-                prizes = prizes.filter(p => p.text !== option);
+                selectedNames.push(option);
+                btn.classList.add('selected');
             }
-            renderSidebarInputs();
         });
 
         presetTagsContainer.appendChild(btn);
     });
-}
 
-function renderSidebarInputs() {
-    prizeListContainer.innerHTML = '';
-    prizes.forEach((prize, index) => {
-        const item = document.createElement('div');
-        item.className = 'prize-item';
-        item.innerHTML = `
-            <input type="text" value="${prize.text}" data-index="${index}" class="prize-text-input">
-            <input type="color" value="${prize.color}" data-index="${index}" class="prize-color-input">
-            <button class="delete-btn" onclick="removePrize(${index})">刪除</button>
-        `;
-        prizeListContainer.appendChild(item);
+    // 新增「+」按鈕
+    const addBtn = document.createElement('button');
+    addBtn.className = 'add-tag-btn';
+    addBtn.textContent = '+ 新增';
+    
+    addBtn.addEventListener('click', () => {
+        const newOption = prompt('請輸入要新增的選項名稱：');
+        if (newOption && newOption.trim() !== '') {
+            const cleanName = newOption.trim();
+            if (!presetOptions.includes(cleanName)) {
+                presetOptions.push(cleanName);
+                selectedNames.push(cleanName); // 新增後預設直接選取 (綠色)
+                renderPresetTags(); // 重新繪製標籤列表
+            } else {
+                alert('該選項已經存在囉！');
+            }
+        }
     });
+
+    presetTagsContainer.appendChild(addBtn);
 }
-
-window.removePrize = function(index) {
-    if (prizes.length <= 2) {
-        alert('轉盤至少需要有 2 個獎項！');
-        return;
-    }
-    prizes.splice(index, 1);
-    renderSidebarInputs();
-    renderPresetTags(); // 同步更新快捷標籤選取狀態
-};
-
-addPrizeBtn.addEventListener('click', () => {
-    prizes.push({ text: '新獎項', color: getRandomColor() });
-    renderSidebarInputs();
-});
 
 saveBtn.addEventListener('click', () => {
-    const textInputs = document.querySelectorAll('.prize-text-input');
-    const colorInputs = document.querySelectorAll('.prize-color-input');
-    
-    if (textInputs.length < 2) {
-        alert('請至少保留 2 個選項！');
+    if (selectedNames.length < 2) {
+        alert('請至少點擊選取 2 個選項才能產生轉盤！');
         return;
     }
 
-    prizes = [];
-    for (let i = 0; i < textInputs.length; i++) {
-        prizes.push({
-            text: textInputs[i].value || '未命名',
-            color: colorInputs[i].value
-        });
-    }
-
+    updatePrizesFromSelected();
     drawWheel();
     closeSidebarFunc();
 });
 
 function openSidebarFunc() {
-    renderSidebarInputs();
     renderPresetTags();
     sidebar.classList.remove('closed');
     sidebarOverlay.classList.remove('closed');
@@ -233,7 +212,7 @@ sidebarOverlay.addEventListener('click', closeSidebarFunc);
 spinBtn.addEventListener('click', () => {
     if (isSpinning) return;
     if (prizes.length < 2) {
-        alert('請先點擊左上角設定至少 2 個獎項！');
+        alert('請點擊左上角按鈕，選擇至少 2 個選項！');
         return;
     }
 
@@ -278,4 +257,5 @@ closeModal.addEventListener('click', () => {
 });
 
 setupCanvasHighDPI();
+updatePrizesFromSelected();
 drawWheel();

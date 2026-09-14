@@ -9,7 +9,7 @@
 <body>
 
     <!-- 左上角選單按鈕 (開啟側欄) -->
-    <button id="menuToggle" class="menu-toggle" title="設定獎項">
+    <button id="menuToggle" class="menu-toggle" title="設定選項">
         <svg viewBox="0 0 24 24">
             <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
         </svg>
@@ -21,46 +21,40 @@
     <!-- 左側邊欄 -->
     <aside id="sidebar" class="sidebar closed">
         <div class="sidebar-header">
-            <h2>獎項設定</h2>
+            <h2>轉盤選項設定</h2>
             <button id="closeSidebar">&times;</button>
         </div>
         
         <div class="sidebar-body">
-            <!-- 預設快捷標籤區塊 -->
+            <!-- 快捷選項區塊 -->
             <div class="preset-section">
-                <div class="preset-header">快捷選項 (點擊選取)</div>
+                <div class="preset-header">點擊選取要加入轉盤的選項：</div>
                 <div id="presetTags" class="preset-tags"></div>
             </div>
 
-            <hr class="divider">
-
-            <!-- 自訂獎項列表區塊 -->
-            <div class="preset-header">獎項列表</div>
-            <div id="prizeList"></div>
-            <button id="addPrizeBtn" class="action-btn">+ 新增獎項</button>
             <button id="saveBtn" class="action-btn save">更新轉盤</button>
         </div>
     </aside>
 
     <div class="main-container">
         <div class="container">
-            <h1>幸運大轉盤</h1>
+            <h1>今天吃什麼？</h1>
             
             <div class="wheel-container">
                 <div class="pointer"></div>
                 <canvas id="wheelCanvas" width="300" height="300"></canvas>
             </div>
 
-            <button id="spinBtn">開始抽獎</button>
+            <button id="spinBtn">開始轉盤</button>
         </div>
     </div>
 
-    <!-- 中獎結果 -->
+    <!-- 中獎結果彈窗 -->
     <div id="resultModal" class="modal hidden">
         <div class="modal-content">
-            <h2>恭喜獲得！</h2>
-            <p id="resultText">獎項</p>
-            <button id="closeModal">確定</button>
+            <h2>今天就吃：</h2>
+            <p id="resultText">選項</p>
+            <button id="closeModal">決定了！</button>
         </div>
     </div>
 

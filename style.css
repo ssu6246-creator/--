@@ -185,38 +185,41 @@ canvas {
 }
 
 .sidebar-body {
-    padding: 15px;
+    padding: 20px 15px;
     overflow-y: auto;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    justify-content: space-between;
 }
 
 .preset-header {
     font-size: 13px;
     font-weight: bold;
     color: #7f8c8d;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .preset-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
 }
 
-/* 預設標籤按鈕樣式 (灰色與綠色切換) */
+/* 標籤按鈕樣式 (灰色與綠色切換) */
 .tag-btn {
     background-color: #e0e0e0;
     color: #555555;
     border: none;
-    padding: 6px 12px;
-    font-size: 13px;
-    border-radius: 16px;
+    padding: 8px 14px;
+    font-size: 14px;
+    border-radius: 20px;
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .tag-btn:hover {
@@ -230,72 +233,41 @@ canvas {
     box-shadow: 0 2px 6px rgba(46, 204, 113, 0.3);
 }
 
-.divider {
-    border: none;
-    border-top: 1px solid #eeeeee;
-    margin: 4px 0;
-}
-
-.prize-item {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    background: #f8f9fa;
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.prize-item input[type="text"] {
-    flex-grow: 1;
-    padding: 6px 8px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 14px;
-    outline: none;
-}
-
-.prize-item input[type="color"] {
-    border: none;
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    background: none;
-}
-
-.delete-btn {
-    background: #e74c3c;
+/* 新增標籤的 + 號按鈕 */
+.add-tag-btn {
+    background-color: #3498db;
     color: white;
     border: none;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.delete-btn:hover { background: #c0392b; }
-
-.action-btn {
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
+    padding: 8px 14px;
     font-size: 14px;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
     transition: background 0.2s;
 }
 
-#addPrizeBtn {
-    background: #3498db;
-    color: white;
+.add-tag-btn:hover {
+    background-color: #2980b9;
 }
-#addPrizeBtn:hover { background: #2980b9; }
+
+.action-btn {
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+    width: 100%;
+}
 
 .save {
     background: #2ecc71;
     color: white;
-    margin-top: 5px;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
 }
+
 .save:hover { background: #27ae60; }
 
 /* 結果彈窗 */
@@ -327,14 +299,15 @@ canvas {
 }
 
 .modal-content h2 { color: #2ecc71; font-size: 20px; margin-bottom: 10px; }
-.modal-content p { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: bold; }
+.modal-content p { font-size: 22px; color: #333; margin-bottom: 20px; font-weight: bold; }
 .modal-content button {
     background-color: #2ecc71;
     color: white;
     border: none;
-    padding: 8px 20px;
+    padding: 10px 24px;
     font-size: 15px;
-    border-radius: 5px;
+    font-weight: bold;
+    border-radius: 8px;
     cursor: pointer;
 }
 .modal-content button:hover { background-color: #27ae60; }
