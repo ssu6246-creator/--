@@ -1,12 +1,58 @@
-<!-- 結果彈出視窗 -->
-<div id="resultModal" class="modal hidden">
-    <div class="modal-content">
-        <h2>今天就吃：</h2>
-        <p id="resultText">飯</p>
-        <div class="modal-buttons">
-            <button id="searchBtn" class="modal-btn secondary-btn">搜尋店家</button>
-            <button id="closeModal" class="modal-btn outline-btn">返回</button>
-            <button id="spinAgainBtn" class="modal-btn primary-btn">再轉一次</button>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今天吃什麼？ - 轉盤抽籤</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- 頂部按鈕 -->
+        <button id="menuToggle" class="menu-btn">☰ 選項</button>
+
+        <h1>今天吃什麼？</h1>
+
+        <!-- 指針與轉盤 -->
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <canvas id="wheelCanvas"></canvas>
+        </div>
+
+        <!-- 開始按鈕 -->
+        <button id="spinBtn" class="spin-btn">開始轉盤</button>
+    </div>
+
+    <!-- 側邊欄抽屜 (選項設定) -->
+    <div id="sidebarOverlay" class="overlay closed"></div>
+    <div id="sidebar" class="sidebar closed">
+        <div class="sidebar-header">
+            <h2>選擇轉盤選項</h2>
+            <button id="closeSidebar" class="close-btn">&times;</button>
+        </div>
+        <div class="sidebar-body">
+            <p>點擊切換是否放入轉盤：</p>
+            <div id="presetTags" class="tags-container"></div>
+        </div>
+        <div class="sidebar-footer">
+            <button id="saveBtn" class="save-btn">儲存並更新轉盤</button>
         </div>
     </div>
-</div>
+
+    <!-- 結果彈出視窗 (Modal) -->
+    <div id="resultModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>今天就吃：</h2>
+            <p id="resultText">飯</p>
+            <div class="modal-buttons">
+                <button id="searchBtn" class="modal-btn secondary-btn">搜尋店家</button>
+                <button id="closeModal" class="modal-btn outline-btn">返回</button>
+                <button id="spinAgainBtn" class="modal-btn primary-btn">再轉一次</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
