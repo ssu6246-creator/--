@@ -1,296 +1,169 @@
-const canvas = document.getElementById('wheelCanvas');
-const ctx = canvas.getContext('2d');
-const spinBtn = document.getElementById('spinBtn');
-const menuToggle = document.getElementById('menuToggle');
-const closeSidebar = document.getElementById('closeSidebar');
-const sidebar = document.getElementById('sidebar');
-const sidebarOverlay = document.getElementById('sidebarOverlay');
-const presetTagsContainer = document.getElementById('presetTags');
-const saveBtn = document.getElementById('saveBtn');
+// ==========================================
+// ⚠️ 請填入你的 LIFF ID 與 GAS 網頁應用程式網址
+// ==========================================
+const LIFF_ID = "YOUR_LIFF_ID"; // 例如: 1234567890-AbCdEfGh
+const GAS_URL = "YOUR_GAS_WEB_APP_URL"; // 例如: https://script.google.com/macros/s/AKfycb.../exec
 
-// Modal 控制元件
-const resultModal = document.getElementById('resultModal');
-const resultText = document.getElementById('resultText');
-const closeModal = document.getElementById('closeModal');
-const searchBtn = document.getElementById('searchBtn');
-const spinAgainBtn = document.getElementById('spinAgainBtn');
+let currentUserId = "";
+let isUsingLocation = false;
+let userLat = "";
+let userLng = "";
 
-// 快捷選項清單
-let presetOptions = [
-    "飯", "麵", "便當", "火鍋", "滷味", 
-    "素食", "日式", "韓式", "義式", 
-    "早餐", "炸物", "燒烤", "甜點", 
-    "健康餐", "飲料"
-];
+// 1. 初始化設定與綁定事件
+window.onload = function() {
+  // 綁定按鈕點擊事件 (取代原本 HTML 裡的 onclick)
+  document.getElementById('btnLocation').addEventListener('click', getLocation);
+  document.getElementById('btnSave').addEventListener('click', saveData);
+  
+  // 綁定下拉選單改變事件
+  document.getElementById('school').addEventListener('change', function() {
+    if (this.value !== 'location') {
+      isUsingLocation = false;
+      document.getElementById('locationStatus').style.display = 'none';
+    }
+  });
 
-// 預設已選取的選項名稱
-let selectedNames = ["飯", "麵", "火鍋", "日式", "韓式", "飲料"];
+  // 啟動 LIFF 初始化
+  initLIFF();
+};
 
-// 顏色庫
-const colorPalette = [
-    '#e74c3c', '#e67e22', '#f39c12', '#2ecc71', 
-    '#1abc9c', '#3498db', '#9b59b6', '#e84393',
-    '#fd79a8', '#00b894', '#00cec9', '#6c5ce7',
-    '#ff7675', '#74b9ff', '#a29bfe', '#d63031'
-];
-
-let prizes = [];
-let numSegments = 0;
-let arcSize = 0;
-let startAngle = 0;
-let isSpinning = false;
-let currentWinner = "";
-const cssSize = 300;
-
-function setupCanvasHighDPI() {
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = cssSize * dpr;
-    canvas.height = cssSize * dpr;
-    canvas.style.width = `${cssSize}px`;
-    canvas.style.height = `${cssSize}px`;
-}
-
-// 根據名稱列表生成帶有顏色的獎項資料
-function updatePrizesFromSelected() {
-    prizes = selectedNames.map((name, index) => {
-        return {
-            text: name,
-            color: colorPalette[index % colorPalette.length]
-        };
+// 2. 初始化 LIFF
+function initLIFF() {
+  document.getElementById('loading').style.display = 'block';
+  liff.init({ liffId: LIFF_ID })
+    .then(() => {
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      } else {
+        return liff.getProfile();
+      }
+    })
+    .then(profile => {
+      if (profile) {
+        currentUserId = profile.userId;
+        fetchUserSettings(); // 去 GAS 抓舊資料
+      }
+    })
+    .catch(err => {
+      console.error("LIFF 初始化失敗", err);
+      alert("LIFF 初始化失敗，請確認在 LINE 內部開啟。");
+      document.getElementById('loading').style.display = 'none';
     });
 }
 
-function drawWheel() {
-    numSegments = prizes.length;
-    if (numSegments === 0) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        return;
-    }
-    arcSize = (2 * Math.PI) / numSegments;
-    
-    const outsideRadius = 140;
-    const center = 150;
-    const dpr = window.devicePixelRatio || 1;
-
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.scale(dpr, dpr);
-
-    for (let i = 0; i < numSegments; i++) {
-        const angle = startAngle + i * arcSize;
-
-        // 畫扇形
-        ctx.beginPath();
-        ctx.fillStyle = prizes[i].color;
-        ctx.moveTo(center, center);
-        ctx.arc(center, center, outsideRadius, angle, angle + arcSize, false);
-        ctx.lineTo(center, center);
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        // 畫文字（從外圈向內排列，正上方時為正確直書順序）
-        ctx.save();
-        ctx.translate(center, center);
-        ctx.rotate(angle + arcSize / 2);
+// 3. 獲取使用者舊設定
+function fetchUserSettings() {
+  const url = `${GAS_URL}?action=getUserSettings&userId=${currentUserId}`;
+  fetch(url)
+    .then(res => res.json())
+    .then(result => {
+      document.getElementById('loading').style.display = 'none';
+      if (result.success && result.exists) {
+        const data = result.data;
         
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-        ctx.shadowBlur = 3;
-        ctx.shadowOffsetX = 1;
-        ctx.shadowOffsetY = 1;
-        
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        let rawText = prizes[i].text;
-        let fontSize = 15;
-        if (rawText.length > 5) fontSize = 11;
-        else if (rawText.length > 3) fontSize = 13;
-        
-        ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-
-        const charCount = rawText.length;
-        const charSpacing = fontSize * 1.25;
-
-        const startRadius = outsideRadius - 25;
-
-        for (let j = 0; j < charCount; j++) {
-            const char = rawText[j];
-            const radiusOffset = startRadius - j * charSpacing;
-            
-            ctx.save();
-            ctx.translate(radiusOffset, 0);
-            ctx.rotate(Math.PI / 2);
-            ctx.fillText(char, 0, 0);
-            ctx.restore();
-        }
-
-        ctx.restore();
-    }
-
-    // 外圓框
-    ctx.beginPath();
-    ctx.arc(center, center, outsideRadius, 0, 2 * Math.PI, false);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = '#34495e';
-    ctx.shadowColor = 'transparent';
-    ctx.stroke();
-
-    // 中心蓋點
-    ctx.beginPath();
-    ctx.arc(center, center, 15, 0, 2 * Math.PI, false);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#34495e';
-    ctx.stroke();
-
-    ctx.restore();
-}
-
-// 渲染快捷選項按鈕
-function renderPresetTags() {
-    presetTagsContainer.innerHTML = '';
-
-    presetOptions.forEach(option => {
-        const btn = document.createElement('button');
-        btn.className = 'tag-btn';
-        btn.textContent = option;
-        
-        if (selectedNames.includes(option)) {
-            btn.classList.add('selected');
-        }
-
-        btn.addEventListener('click', () => {
-            if (selectedNames.includes(option)) {
-                selectedNames = selectedNames.filter(name => name !== option);
-                btn.classList.remove('selected');
-            } else {
-                selectedNames.push(option);
-                btn.classList.add('selected');
-            }
-        });
-
-        presetTagsContainer.appendChild(btn);
-    });
-
-    const addBtn = document.createElement('button');
-    addBtn.className = 'add-tag-btn';
-    addBtn.textContent = '+ 新增';
-    
-    addBtn.addEventListener('click', () => {
-        const newOption = prompt('請輸入要新增的選項名稱：');
-        if (newOption && newOption.trim() !== '') {
-            const cleanName = newOption.trim();
-            if (!presetOptions.includes(cleanName)) {
-                presetOptions.push(cleanName);
-                selectedNames.push(cleanName);
-                renderPresetTags();
-            } else {
-                alert('該選項已經存在囉！');
-            }
-        }
-    });
-
-    presetTagsContainer.appendChild(addBtn);
-}
-
-saveBtn.addEventListener('click', () => {
-    if (selectedNames.length < 2) {
-        alert('請至少點擊選取 2 個選項才能產生轉盤！');
-        return;
-    }
-
-    updatePrizesFromSelected();
-    drawWheel();
-    closeSidebarFunc();
-});
-
-function openSidebarFunc() {
-    renderPresetTags();
-    sidebar.classList.remove('closed');
-    sidebarOverlay.classList.remove('closed');
-}
-
-function closeSidebarFunc() {
-    sidebar.classList.add('closed');
-    sidebarOverlay.classList.add('closed');
-}
-
-menuToggle.addEventListener('click', openSidebarFunc);
-closeSidebar.addEventListener('click', closeSidebarFunc);
-sidebarOverlay.addEventListener('click', closeSidebarFunc);
-
-// 旋轉邏輯
-function startSpinning() {
-    if (isSpinning) return;
-    if (prizes.length < 2) {
-        alert('請點擊左上角按鈕，選擇至少 2 個選項！');
-        return;
-    }
-
-    isSpinning = true;
-    spinBtn.disabled = true;
-
-    const winningIndex = Math.floor(Math.random() * numSegments);
-    const targetAngle = 3 * Math.PI / 2 - (winningIndex * arcSize + arcSize / 2);
-    const extraSpins = (Math.floor(Math.random() * 4) + 5) * 2 * Math.PI;
-    const totalRotation = extraSpins + targetAngle - (startAngle % (2 * Math.PI));
-
-    let currentRotation = 0;
-    const spinDuration = 4000;
-    const startTime = performance.now();
-
-    function animateSpin(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / spinDuration, 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        
-        startAngle += (totalRotation * easeOut) - currentRotation;
-        currentRotation = totalRotation * easeOut;
-
-        drawWheel();
-
-        if (progress < 1) {
-            requestAnimationFrame(animateSpin);
+        // 如果上次存的是定位
+        if (data.isCurrentLocation) {
+          isUsingLocation = true;
+          userLat = data.latitude;
+          userLng = data.longitude;
+          document.getElementById('optLocation').style.display = 'block';
+          document.getElementById('school').value = 'location';
+          document.getElementById('locationStatus').innerText = `已載入上次儲存的定位 (${userLat}, ${userLng})`;
+          document.getElementById('locationStatus').style.display = 'block';
         } else {
-            isSpinning = false;
-            spinBtn.disabled = false;
-            
-            currentWinner = prizes[winningIndex].text;
-            resultText.textContent = currentWinner;
-            resultModal.classList.remove('hidden');
+          if (data.school) document.getElementById('school').value = data.school;
         }
-    }
-
-    requestAnimationFrame(animateSpin);
+        
+        if (data.campusText) document.getElementById('campus').value = data.campusText;
+        if (data.price) document.getElementById('price').value = data.price;
+        if (data.distance) document.getElementById('distance').value = data.distance;
+      }
+    })
+    .catch(err => {
+      console.error("讀取設定失敗", err);
+      document.getElementById('loading').style.display = 'none';
+    });
 }
 
-spinBtn.addEventListener('click', startSpinning);
+// 4. HTML5 獲取手機定位
+function getLocation() {
+  if (navigator.geolocation) {
+    document.getElementById('locationStatus').innerText = "定位中，請稍候...";
+    document.getElementById('locationStatus').style.display = 'block';
+    
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        userLat = position.coords.latitude;
+        userLng = position.coords.longitude;
+        isUsingLocation = true;
+        
+        document.getElementById('locationStatus').innerText = `✅ 定位成功！(${userLat.toFixed(4)}, ${userLng.toFixed(4)})`;
+        document.getElementById('optLocation').style.display = 'block';
+        document.getElementById('school').value = 'location';
+      },
+      function(error) {
+        alert("獲取定位失敗，請確認是否允許網頁取用位置權限。");
+        document.getElementById('locationStatus').style.display = 'none';
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  } else {
+    alert("您的裝置不支援定位功能。");
+  }
+}
 
-// Modal 按鈕功能事件
-// 1. 第一個：搜尋店家（開啟 Google 地圖搜尋）
-searchBtn.addEventListener('click', () => {
-    if (currentWinner) {
-        const query = encodeURIComponent(`${currentWinner} 附近美食`);
-        window.open(`https://www.google.com/maps/search/${query}`, '_blank');
+// 5. 儲存設定並傳送給 GAS
+function saveData() {
+  if (!currentUserId) {
+    alert("無法獲取 User ID，請重新開啟視窗。");
+    return;
+  }
+
+  document.getElementById('loading').innerText = "儲存中...";
+  document.getElementById('loading').style.display = 'block';
+
+  const schoolSelect = document.getElementById('school');
+  const schoolText = schoolSelect.options[schoolSelect.selectedIndex].text;
+  const campusText = document.getElementById('campus').value;
+  
+  const priceSelect = document.getElementById('price');
+  const priceText = priceSelect.options[priceSelect.selectedIndex].text;
+  
+  const distanceSelect = document.getElementById('distance');
+  const distanceText = distanceSelect.options[distanceSelect.selectedIndex].text;
+
+  const payload = {
+    action: "saveUserSettings",
+    userId: currentUserId,
+    schoolText: schoolText,
+    campusText: campusText,
+    priceText: priceText,
+    distanceText: distanceText,
+    isCurrentLocation: isUsingLocation,
+    latitude: userLat,
+    longitude: userLng
+  };
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8' // GAS 建議使用 text/plain 避免 CORS preflight
     }
-});
-
-// 2. 第二個：返回（關閉 Modal）
-closeModal.addEventListener('click', () => {
-    resultModal.classList.add('hidden');
-});
-
-// 3. 第三個：再轉一次（關閉 Modal 並重新旋轉）
-spinAgainBtn.addEventListener('click', () => {
-    resultModal.classList.add('hidden');
-    startSpinning();
-});
-
-setupCanvasHighDPI();
-updatePrizesFromSelected();
-drawWheel();
+  })
+  .then(res => res.json())
+  .then(result => {
+    if (result.success) {
+      alert("✅ 設定儲存成功！");
+      liff.closeWindow(); // 儲存完自動關閉 LIFF 視窗
+    } else {
+      alert("儲存失敗：" + result.message);
+      document.getElementById('loading').style.display = 'none';
+    }
+  })
+  .catch(err => {
+    console.error("傳送失敗", err);
+    alert("網路錯誤，請稍後再試。");
+    document.getElementById('loading').style.display = 'none';
+  });
+}
