@@ -3,79 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>學霸美食地圖 - 偏好設定</title>
-  
-  <!-- 引入外部 CSS 樣式表 -->
+  <title>美食幸運轉盤</title>
   <link rel="stylesheet" href="style.css">
-  
-  <!-- 引入 LINE LIFF SDK -->
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
 
-  <div class="container">
-    <h2>🍽️ 偏好設定</h2>
+  <!-- 側邊欄 (Sidebar UI) -->
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <h2>🍽️ 轉盤選項</h2>
+      <button id="closeSidebar" class="close-btn">&times;</button>
+    </div>
     
-    <div id="loading">載入資料中，請稍候...</div>
-
-    <button type="button" class="btn-location" id="btnLocation">
-      📍 獲取當前定位 (取代學校)
-    </button>
-    <div id="locationStatus" style="font-size: 12px; color: #4285F4; text-align: center; margin-bottom: 15px; display: none;"></div>
-
-    <div class="form-group">
-      <label for="school">選擇學校</label>
-      <select id="school">
-        <option value="school5" selected>國立臺中科技大學</option>
-        <option value="school1">國立中興大學</option>
-        <option value="school2">國立臺中教育大學</option>
-        <option value="school3">國立勤益科技大學</option>
-        <option value="school4">國立臺灣體育運動大學</option>
-        <option value="school6">東海大學</option>
-        <option value="school7">逢甲大學</option>
-        <option value="school8">靜宜大學</option>
-        <option value="school9">朝陽科技大學</option>
-        <option value="school10">中山醫學大學</option>
-        <option value="school11">弘光科技大學</option>
-        <option value="school12">中國醫藥大學</option>
-        <option value="school13">嶺東科技大學</option>
-        <option value="school14">中臺科技大學</option>
-        <option value="school15">亞洲大學</option>
-        <option value="school16">僑光科技大學</option>
-        <option value="location" style="display:none;" id="optLocation">目前定位</option>
-      </select>
+    <div class="input-group">
+      <input type="text" id="newItemInput" placeholder="輸入想吃的食物...">
+      <button id="addItemBtn">新增</button>
     </div>
-
-    <div class="form-group">
-      <label for="campus">校區 (可留空)</label>
-      <input type="text" id="campus" placeholder="例如：三民校區">
-    </div>
-
-    <div class="form-group">
-      <label for="price">預設預算</label>
-      <select id="price">
-        <option value="price1">100以下</option>
-        <option value="price2" selected>100-200</option>
-        <option value="price3">200以上</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="distance">預設距離</label>
-      <select id="distance">
-        <option value="distance1">0-200公尺</option>
-        <option value="distance2" selected>201-500公尺</option>
-        <option value="distance3">500公尺-1公里</option>
-        <option value="distance4">1公里以上</option>
-      </select>
-    </div>
-
-    <div class="btn-group">
-      <button class="btn-primary" id="btnSave">💾 儲存設定</button>
-    </div>
+    
+    <ul id="itemList" class="item-list">
+      <!-- 選項會透過 JS 動態生成在這裡 -->
+    </ul>
   </div>
 
-  <!-- 引入外部 JavaScript 檔案 -->
+  <!-- 背景遮罩 -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- 主畫面 -->
+  <div class="main-content">
+    <div class="header">
+      <button id="openSidebar" class="menu-btn">☰ 選項設定</button>
+    </div>
+
+    <div class="wheel-wrapper">
+      <div class="pointer">▼</div>
+      <!-- HTML5 Canvas 轉盤 -->
+      <canvas id="wheelCanvas" width="320" height="320"></canvas>
+    </div>
+
+    <button id="spinBtn" class="spin-btn">GO！開始抽</button>
+    
+    <div id="resultText" class="result-text">今天吃什麼？</div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
