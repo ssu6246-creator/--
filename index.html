@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>美食幸運轉盤</title>
+  <title>學霸美食轉盤</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- 側邊欄 (Sidebar UI) -->
-  <div id="sidebar" class="sidebar">
-    <div class="sidebar-header">
+  <!-- 左側抽屜式選單 -->
+  <div id="drawer" class="drawer">
+    <div class="drawer-header">
       <h2>🍽️ 轉盤選項</h2>
-      <button id="closeSidebar" class="close-btn">&times;</button>
+      <button id="closeDrawer" class="close-btn">&times;</button>
     </div>
     
     <div class="input-group">
@@ -20,9 +20,7 @@
       <button id="addItemBtn">新增</button>
     </div>
     
-    <ul id="itemList" class="item-list">
-      <!-- 選項會透過 JS 動態生成在這裡 -->
-    </ul>
+    <ul id="itemList" class="item-list"></ul>
   </div>
 
   <!-- 背景遮罩 -->
@@ -31,18 +29,31 @@
   <!-- 主畫面 -->
   <div class="main-content">
     <div class="header">
-      <button id="openSidebar" class="menu-btn">☰ 選項設定</button>
+      <button id="openDrawer" class="menu-btn">☰ 選項設定</button>
     </div>
 
     <div class="wheel-wrapper">
       <div class="pointer">▼</div>
-      <!-- HTML5 Canvas 轉盤 -->
-      <canvas id="wheelCanvas" width="320" height="320"></canvas>
+      <!-- 高解析度 Canvas 轉盤 -->
+      <canvas id="wheelCanvas"></canvas>
     </div>
 
     <button id="spinBtn" class="spin-btn">GO！開始抽</button>
-    
-    <div id="resultText" class="result-text">今天吃什麼？</div>
+  </div>
+
+  <!-- 中獎結果彈窗 -->
+  <div id="resultModal" class="modal">
+    <div class="modal-content">
+      <h2>🎉 抽中啦！</h2>
+      <p id="resultText" class="result-text">今天吃：</p>
+      
+      <!-- 垂直排列的按鈕區 -->
+      <div class="modal-buttons">
+        <button id="searchBtn" class="modal-btn btn-primary">🔍 搜尋店家</button>
+        <button id="spinAgainBtn" class="modal-btn btn-secondary">🔄 再轉一次</button>
+        <button id="returnBtn" class="modal-btn btn-outline">⬅️ 返回</button>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
