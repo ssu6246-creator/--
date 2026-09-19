@@ -248,32 +248,33 @@ h1 {
     font-size: 2rem;
     font-weight: bold;
     color: #2c3e50;
-    margin: 15px 0 25px 0;
+    margin: 15px 0 20px 0;
 }
 
+/* 改為直向由上往下排列 */
 .modal-buttons {
     display: flex;
-    justify-content: space-between;
-    gap: 8px;
+    flex-direction: column;
+    gap: 10px;
     width: 100%;
 }
 
 .modal-btn {
-    flex: 1;
-    padding: 10px 4px;
-    font-size: 0.9rem;
+    width: 100%;
+    padding: 12px 0;
+    font-size: 1rem;
     font-weight: bold;
     border-radius: 8px;
     border: none;
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
-    white-space: nowrap;
 }
 
 .modal-btn:active {
-    transform: scale(0.96);
+    transform: scale(0.98);
 }
 
+/* 第一個：搜尋店家 (藍色) */
 .secondary-btn {
     background-color: #3498db;
     color: #ffffff;
@@ -283,6 +284,7 @@ h1 {
     background-color: #2980b9;
 }
 
+/* 第二個：返回 (灰底) */
 .outline-btn {
     background-color: #ecf0f1;
     color: #7f8c8d;
@@ -293,6 +295,7 @@ h1 {
     color: #2c3e50;
 }
 
+/* 第三個：再轉一次 (綠色) */
 .primary-btn {
     background-color: #2ecc71;
     color: #ffffff;
