@@ -17,14 +17,14 @@ const spinAgainBtn = document.getElementById('spinAgainBtn');
 
 // 將按鈕文字改為「發送給 LINE Bot」
 if (searchBtn) {
-    searchBtn.textContent = "發送給 LINE Bot";
+    searchBtn.textContent = "搜尋店家";
 }
 
 // --------------------------------------------------------
 // 初始化 LIFF (請記得在 HTML 的 <head> 引入 LIFF SDK)
 // <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 // --------------------------------------------------------
-const MY_LIFF_ID = "YOUR_LIFF_ID_HERE"; // 請替換成你的 LIFF ID (若無可先略過，但在 Line 內執行需初始化)
+const MY_LIFF_ID = "2011288416-vjiS7Hew"; // 請替換成你的 LIFF ID (若無可先略過，但在 Line 內執行需初始化)
 
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof liff !== 'undefined') {
