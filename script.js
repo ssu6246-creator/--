@@ -8,9 +8,12 @@ const sidebarOverlay = document.getElementById('sidebarOverlay');
 const presetTagsContainer = document.getElementById('presetTags');
 const saveBtn = document.getElementById('saveBtn');
 
+// Modal 控制元件
 const resultModal = document.getElementById('resultModal');
 const resultText = document.getElementById('resultText');
 const closeModal = document.getElementById('closeModal');
+const searchBtn = document.getElementById('searchBtn');
+const spinAgainBtn = document.getElementById('spinAgainBtn');
 
 // 快捷選項清單
 let presetOptions = [
@@ -36,6 +39,7 @@ let numSegments = 0;
 let arcSize = 0;
 let startAngle = 0;
 let isSpinning = false;
+let currentWinner = "";
 const cssSize = 300;
 
 function setupCanvasHighDPI() {
@@ -92,7 +96,6 @@ function drawWheel() {
         ctx.translate(center, center);
         ctx.rotate(angle + arcSize / 2);
         
-        // 白色文字與陰影
         ctx.fillStyle = '#ffffff';
         ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
         ctx.shadowBlur = 3;
@@ -110,9 +113,8 @@ function drawWheel() {
         ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
 
         const charCount = rawText.length;
-        const charSpacing = fontSize * 1.25; // 字距
+        const charSpacing = fontSize * 1.25;
 
-        // 第一個字放在外圈，後續字向圓心延伸
         const startRadius = outsideRadius - 25;
 
         for (let j = 0; j < charCount; j++) {
@@ -121,10 +123,7 @@ function drawWheel() {
             
             ctx.save();
             ctx.translate(radiusOffset, 0);
-            
-            // 旋轉 90 度使單字維持頭朝外、腳朝內的正立直書方向
             ctx.rotate(Math.PI / 2);
-            
             ctx.fillText(char, 0, 0);
             ctx.restore();
         }
@@ -152,17 +151,15 @@ function drawWheel() {
     ctx.restore();
 }
 
-// 渲染快捷選項按鈕（含 + 號新增按鈕）
+// 渲染快捷選項按鈕
 function renderPresetTags() {
     presetTagsContainer.innerHTML = '';
 
-    // 渲染一般選項按鈕
     presetOptions.forEach(option => {
         const btn = document.createElement('button');
         btn.className = 'tag-btn';
         btn.textContent = option;
         
-        // 若該選項已選取，顯示綠色 (.selected)
         if (selectedNames.includes(option)) {
             btn.classList.add('selected');
         }
@@ -180,7 +177,6 @@ function renderPresetTags() {
         presetTagsContainer.appendChild(btn);
     });
 
-    // 新增「+」按鈕
     const addBtn = document.createElement('button');
     addBtn.className = 'add-tag-btn';
     addBtn.textContent = '+ 新增';
@@ -191,8 +187,8 @@ function renderPresetTags() {
             const cleanName = newOption.trim();
             if (!presetOptions.includes(cleanName)) {
                 presetOptions.push(cleanName);
-                selectedNames.push(cleanName); // 新增後預設直接選取 (綠色)
-                renderPresetTags(); // 重新繪製標籤列表
+                selectedNames.push(cleanName);
+                renderPresetTags();
             } else {
                 alert('該選項已經存在囉！');
             }
@@ -228,7 +224,8 @@ menuToggle.addEventListener('click', openSidebarFunc);
 closeSidebar.addEventListener('click', closeSidebarFunc);
 sidebarOverlay.addEventListener('click', closeSidebarFunc);
 
-spinBtn.addEventListener('click', () => {
+// 旋轉邏輯
+function startSpinning() {
     if (isSpinning) return;
     if (prizes.length < 2) {
         alert('請點擊左上角按鈕，選擇至少 2 個選項！');
@@ -263,16 +260,35 @@ spinBtn.addEventListener('click', () => {
             isSpinning = false;
             spinBtn.disabled = false;
             
-            resultText.textContent = prizes[winningIndex].text;
+            currentWinner = prizes[winningIndex].text;
+            resultText.textContent = currentWinner;
             resultModal.classList.remove('hidden');
         }
     }
 
     requestAnimationFrame(animateSpin);
+}
+
+spinBtn.addEventListener('click', startSpinning);
+
+// Modal 按鈕功能事件
+// 1. 左邊：搜尋店家（開啟 Google 地圖搜尋）
+searchBtn.addEventListener('click', () => {
+    if (currentWinner) {
+        const query = encodeURIComponent(`${currentWinner} 附近美食`);
+        window.open(`https://www.google.com/maps/search/${query}`, '_blank');
+    }
 });
 
+// 2. 中間：返回（關閉 Modal）
 closeModal.addEventListener('click', () => {
     resultModal.classList.add('hidden');
+});
+
+// 3. 右邊：再轉一次（關閉 Modal 並重新旋轉）
+spinAgainBtn.addEventListener('click', () => {
+    resultModal.classList.add('hidden');
+    startSpinning();
 });
 
 setupCanvasHighDPI();

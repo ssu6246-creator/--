@@ -1,63 +1,12 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>幸運大轉盤</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <!-- 左上角選單按鈕 (開啟側欄) -->
-    <button id="menuToggle" class="menu-toggle" title="設定選項">
-        <svg viewBox="0 0 24 24">
-            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-        </svg>
-    </button>
-
-    <!-- 背景遮罩 -->
-    <div id="sidebarOverlay" class="sidebar-overlay closed"></div>
-
-    <!-- 左側邊欄 -->
-    <aside id="sidebar" class="sidebar closed">
-        <div class="sidebar-header">
-            <h2>轉盤選項設定</h2>
-            <button id="closeSidebar">&times;</button>
-        </div>
-        
-        <div class="sidebar-body">
-            <!-- 快捷選項區塊 -->
-            <div class="preset-section">
-                <div class="preset-header">點擊選取要加入轉盤的選項：</div>
-                <div id="presetTags" class="preset-tags"></div>
-            </div>
-
-            <button id="saveBtn" class="action-btn save">更新轉盤</button>
-        </div>
-    </aside>
-
-    <div class="main-container">
-        <div class="container">
-            <h1>今天吃什麼？</h1>
-            
-            <div class="wheel-container">
-                <div class="pointer"></div>
-                <canvas id="wheelCanvas" width="300" height="300"></canvas>
-            </div>
-
-            <button id="spinBtn">開始轉盤</button>
+<!-- 結果彈出視窗 -->
+<div id="resultModal" class="modal hidden">
+    <div class="modal-content">
+        <h2>今天就吃：</h2>
+        <p id="resultText">飯</p>
+        <div class="modal-buttons">
+            <button id="searchBtn" class="modal-btn secondary-btn">搜尋店家</button>
+            <button id="closeModal" class="modal-btn outline-btn">返回</button>
+            <button id="spinAgainBtn" class="modal-btn primary-btn">再轉一次</button>
         </div>
     </div>
-
-    <!-- 中獎結果彈窗 -->
-    <div id="resultModal" class="modal hidden">
-        <div class="modal-content">
-            <h2>今天就吃：</h2>
-            <p id="resultText">選項</p>
-            <button id="closeModal">決定了！</button>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+</div>
