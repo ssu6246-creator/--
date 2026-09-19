@@ -15,6 +15,11 @@ const closeModal = document.getElementById('closeModal');
 const searchBtn = document.getElementById('searchBtn');
 const spinAgainBtn = document.getElementById('spinAgainBtn');
 
+// 將按鈕上的文字從「搜尋店家」改為「傳送給 LINE Bot」
+if (searchBtn) {
+    searchBtn.textContent = "傳送給 LINE Bot";
+}
+
 // 快捷選項清單
 let presetOptions = [
     "飯", "麵", "便當", "火鍋", "滷味", 
@@ -91,7 +96,7 @@ function drawWheel() {
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // 畫文字（從外圈向內排列，正上方時為正確直書順序）
+        // 畫文字
         ctx.save();
         ctx.translate(center, center);
         ctx.rotate(angle + arcSize / 2);
@@ -114,7 +119,6 @@ function drawWheel() {
 
         const charCount = rawText.length;
         const charSpacing = fontSize * 1.25;
-
         const startRadius = outsideRadius - 25;
 
         for (let j = 0; j < charCount; j++) {
@@ -271,21 +275,38 @@ function startSpinning() {
 
 spinBtn.addEventListener('click', startSpinning);
 
-// Modal 按鈕功能事件
-// 1. 第一個：搜尋店家（開啟 Google 地圖搜尋）
+// Modal 按鈕功能事件：改為傳送結果給 LINE Bot 並跳轉
 searchBtn.addEventListener('click', () => {
     if (currentWinner) {
-        const query = encodeURIComponent(`${currentWinner} 附近美食`);
-        window.open(`https://www.google.com/maps/search/${query}`, '_blank');
+        const message = encodeURIComponent(`今天決定吃：${currentWinner}`);
+        
+        // 如果您的網頁是掛載在 LINE LIFF 內，可以透過 liff.sendMessages 傳送並關閉：
+        /*
+        if (typeof liff !== 'undefined' && liff.isInClient()) {
+            liff.sendMessages([{
+                type: 'text',
+                text: `今天決定吃：${currentWinner}`
+            }]).then(() => {
+                liff.closeWindow();
+            }).catch((err) => {
+                console.error('傳送訊息失敗', err);
+            });
+            return;
+        }
+        */
+
+        // 一般網頁情境：使用 LINE 桌面版/App 共用連結（導向 LINE 聊天室發送訊息）
+        const lineShareUrl = `https://line.me/R/msg/text/?${message}`;
+        window.location.href = lineShareUrl;
     }
 });
 
-// 2. 第二個：返回（關閉 Modal）
+// 2. 返回（關閉 Modal）
 closeModal.addEventListener('click', () => {
     resultModal.classList.add('hidden');
 });
 
-// 3. 第三個：再轉一次（關閉 Modal 並重新旋轉）
+// 3. 再轉一次（關閉 Modal 並重新旋轉）
 spinAgainBtn.addEventListener('click', () => {
     resultModal.classList.add('hidden');
     startSpinning();
