@@ -15,10 +15,28 @@ const closeModal = document.getElementById('closeModal');
 const searchBtn = document.getElementById('searchBtn');
 const spinAgainBtn = document.getElementById('spinAgainBtn');
 
-// 將按鈕上的文字從「搜尋店家」改為「傳送給 LINE Bot」
+// 將按鈕文字改為「發送給 LINE Bot」
 if (searchBtn) {
-    searchBtn.textContent = "傳送給 LINE Bot";
+    searchBtn.textContent = "發送給 LINE Bot";
 }
+
+// --------------------------------------------------------
+// 初始化 LIFF (請記得在 HTML 的 <head> 引入 LIFF SDK)
+// <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+// --------------------------------------------------------
+const MY_LIFF_ID = "YOUR_LIFF_ID_HERE"; // 請替換成你的 LIFF ID (若無可先略過，但在 Line 內執行需初始化)
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof liff !== 'undefined') {
+        liff.init({ liffId: MY_LIFF_ID })
+            .then(() => {
+                console.log("LIFF 初始化成功");
+            })
+            .catch((err) => {
+                console.error("LIFF 初始化失敗", err);
+            });
+    }
+});
 
 // 快捷選項清單
 let presetOptions = [
@@ -275,29 +293,33 @@ function startSpinning() {
 
 spinBtn.addEventListener('click', startSpinning);
 
-// Modal 按鈕功能事件：改為傳送結果給 LINE Bot 並跳轉
+// --------------------------------------------------------
+// 點擊按鈕：透過 LIFF 直接發送訊息給 LINE Bot 並關閉視窗
+// --------------------------------------------------------
 searchBtn.addEventListener('click', () => {
-    if (currentWinner) {
-        const message = encodeURIComponent(`今天決定吃：${currentWinner}`);
-        
-        // 如果您的網頁是掛載在 LINE LIFF 內，可以透過 liff.sendMessages 傳送並關閉：
-        /*
-        if (typeof liff !== 'undefined' && liff.isInClient()) {
-            liff.sendMessages([{
-                type: 'text',
-                text: `今天決定吃：${currentWinner}`
-            }]).then(() => {
-                liff.closeWindow();
-            }).catch((err) => {
-                console.error('傳送訊息失敗', err);
-            });
-            return;
-        }
-        */
+    if (!currentWinner) return;
 
-        // 一般網頁情境：使用 LINE 桌面版/App 共用連結（導向 LINE 聊天室發送訊息）
-        const lineShareUrl = `https://line.me/R/msg/text/?${message}`;
-        window.location.href = lineShareUrl;
+    // 這裡可以自訂要發送給 Bot 的文字，例如直接送出「附近宵夜美食」或「我想吃 [結果]」
+    // 如果你想直接觸發你的 Bot 流程，可以改成對應的關鍵字，例如：`附近宵夜美食` 或 `學校附近美食推薦`
+    const messageToSend = `附近宵夜美食`; // 或者用 `想吃 ${currentWinner}`
+
+    if (typeof liff !== 'undefined' && liff.isInClient()) {
+        liff.sendMessages([
+            {
+                type: 'text',
+                text: messageToSend
+            }
+        ])
+        .then(() => {
+            console.log('訊息已成功發送給 LINE Bot');
+            liff.closeWindow(); // 發送後自動關閉 LIFF 視窗
+        })
+        .catch((err) => {
+            console.error('發送訊息失敗', err);
+            alert('發送失敗，請稍後再試');
+        });
+    } else {
+        alert('請在 LINE 應用程式內開啟此網頁才能直接發送訊息！');
     }
 });
 
