@@ -272,7 +272,7 @@ function startSpinning() {
 spinBtn.addEventListener('click', startSpinning);
 
 // Modal 按鈕功能事件
-// 1. 第一個：搜尋店家（開啟 Google 地圖搜尋）
+// 1. 左邊：搜尋店家（開啟 Google 地圖搜尋）
 searchBtn.addEventListener('click', () => {
     if (currentWinner) {
         const query = encodeURIComponent(`${currentWinner} 附近美食`);
@@ -280,12 +280,12 @@ searchBtn.addEventListener('click', () => {
     }
 });
 
-// 2. 第二個：返回（關閉 Modal）
+// 2. 中間：返回（關閉 Modal）
 closeModal.addEventListener('click', () => {
     resultModal.classList.add('hidden');
 });
 
-// 3. 第三個：再轉一次（關閉 Modal 並重新旋轉）
+// 3. 右邊：再轉一次（關閉 Modal 並重新旋轉）
 spinAgainBtn.addEventListener('click', () => {
     resultModal.classList.add('hidden');
     startSpinning();
