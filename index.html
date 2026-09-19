@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>今天吃什麼？ - 轉盤抽籤</title>
     <link rel="stylesheet" href="style.css">
+    <!-- 1. 務必引入 LINE LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
 
@@ -46,7 +48,8 @@
             <h2>今天就吃：</h2>
             <p id="resultText">飯</p>
             <div class="modal-buttons">
-                <button id="searchBtn" class="modal-btn secondary-btn">搜尋店家</button>
+                <!-- 2. 將原本的「搜尋店家」按鈕文字與 ID 調整 -->
+                <button id="searchBtn" class="modal-btn secondary-btn">發送給 LINE Bot</button>
                 <button id="closeModal" class="modal-btn outline-btn">返回</button>
                 <button id="spinAgainBtn" class="modal-btn primary-btn">再轉一次</button>
             </div>
